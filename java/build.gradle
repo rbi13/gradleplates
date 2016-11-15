@@ -1,0 +1,28 @@
+plugins {
+    id 'java'
+    id 'maven-publish'
+    id 'eclipse'
+}
+version=0.0
+
+/**
+ * Dependency configuration
+ */
+repositories {
+    jcenter()
+}
+
+dependencies {
+}
+
+publishing {
+  repositories {
+     maven {
+         url "$buildDir/repo"
+    }
+    publications {
+        mavenJava(MavenPublication) {
+            from components.java
+        }
+    }
+}
