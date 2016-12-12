@@ -1,25 +1,19 @@
 plugins {
     id 'java'
     id 'maven-publish'
-    id 'eclipse'
+    id 'idea'
 }
 version=0.0
 
-/**
- * Dependency configuration
- */
 repositories {
     jcenter()
 }
 
 dependencies {
+  testCompile "junit:junit:+"
 }
 
 publishing {
-  repositories {
-     maven {
-         url "$buildDir/repo"
-    }
     publications {
         mavenJava(MavenPublication) {
             from components.java
