@@ -1,0 +1,35 @@
+
+plugins {
+    id 'scala'
+    id 'maven-publish'
+    id 'idea'
+}
+version = '0.0.0'
+def mainClass='io.rbi.tpl8.Main'
+
+repositories {
+    jcenter()
+}
+
+dependencies {
+  // scala
+  def scala_version='2.11'
+  compile "org.scala-lang:scala-library:${scala_version}.+"
+  testCompile "org.scalatest:scalatest_${scala_version}:+"
+}
+
+mainClass = hasProperty('mainClass') ? project.mainClass : mainClass
+// run using javaExec
+task run(type: JavaExec, dependsOn: classes) {
+    main = mainClass
+    classpath sourceSets.main.runtimeClasspath
+    classpath configurations.runtime
+}
+// run using docker scala image
+task runJarDocker(type:Exec, dependsOn: jar) {
+  def dir = System.getProperty("user.dir")
+  commandLine 'docker', 'run', '--rm',
+    '--rm', '-v', "${dir}:/app/", '-w', '/app',
+    "rbi13/scala:${scala_version}-dev", 'scala', '-cp',
+    relativePath(jar.archivePath), mainClass
+}
