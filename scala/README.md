@@ -1,4 +1,4 @@
-# Scala gradle template
+# Scala Gradle template
 
 Inputs
 ```groovy
