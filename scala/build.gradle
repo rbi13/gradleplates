@@ -1,4 +1,3 @@
-
 plugins {
     id 'scala'
     id 'maven-publish'
@@ -6,13 +5,16 @@ plugins {
 }
 version = '0.0.0'
 def mainClass='io.rbi.tpl8.Main'
+
 def scala_version='2.11'
+def imageTag='example'
+def runImage='openjdk:8-jre-alpine'
+
 repositories {
     jcenter()
 }
 
 dependencies {
-  // scala
   compile "org.scala-lang:scala-library:${scala_version}.+"
   testCompile "org.scalatest:scalatest_${scala_version}:+"
 }
@@ -24,11 +26,22 @@ task run(type: JavaExec, dependsOn: classes) {
     classpath sourceSets.main.runtimeClasspath
     classpath configurations.runtime
 }
+
+// includes runtime dependencies in libs folder
+task dumpLibs(type: Copy) {
+  into "build/libs/"
+  from configurations.runtime
+}
+
 // run using docker scala image
-task runJarDocker(type:Exec, dependsOn: jar) {
+task dockerRun(type:Exec, dependsOn:[jar, dumpLibs]) {
   def dir = System.getProperty("user.dir")
   commandLine 'docker', 'run', '--rm',
-    '--rm', '-v', "${dir}:/app/", '-w', '/app',
-    "rbi13/scala:${scala_version}-dev", 'scala', '-cp',
-    relativePath(jar.archivePath), mainClass
+    '-v', "${dir}:/app/", '-w', '/app',
+    runImage, 'java', '-cp', "build/libs/*", mainClass
+}
+
+// build docker image
+task dockerBuild(type:Exec, dependsOn:[jar, dumpLibs]) {
+  commandLine 'docker', 'build', '-t', imageTag, '.'
 }
