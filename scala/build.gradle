@@ -9,6 +9,7 @@ def mainClass='io.rbi.tpl8.Main'
 def scala_version='2.11'
 def imageTag='example'
 def runImage='openjdk:8-jre-alpine'
+def dockerNetwork='bridge' // OR your own
 
 repositories {
     jcenter()
@@ -37,6 +38,7 @@ task dumpLibs(type: Copy) {
 task dockerRun(type:Exec, dependsOn:[jar, dumpLibs]) {
   def dir = System.getProperty("user.dir")
   commandLine 'docker', 'run', '--rm',
+    '--net', dockerNetwork,
     '-v', "${dir}:/app/", '-w', '/app',
     runImage, 'java', '-cp', "build/libs/*", mainClass
 }
